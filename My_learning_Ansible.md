@@ -38,7 +38,7 @@ If we have special requirements for different playbooks, we have 2 ways:
 
 ---
 
-### Hpw to disable the SSH host key in ansible.conf
+### How to disable the SSH host key in ansible.conf
 
 ```bash
 vi /home/bob/playbooks/ansible.cfg # create a config file
