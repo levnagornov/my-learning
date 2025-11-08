@@ -1592,3 +1592,450 @@ You can specify the required collections and their versions in a `requirement.ym
 ```bash
 ansible-galaxy collection install -r requirements.yml
 ```
+
+## Templating
+
+You have a syntax of `{{ variable }}` so the value of `variable` will be replaced with actual value in the runtime.
+
+### Playbook template example
+
+```yaml
+# Template
+- hosts: web1
+  tasks:
+    - file:
+        path: {{ file }}
+        state: touch 
+
+# Variables
+file: /tmp/1.txt
+
+# Outcome
+- hosts: web1
+  tasks:
+    - file:
+        path: /tmp/1.txt
+        state: touch 
+```
+
+### Configuration template example
+
+```ini
+# Template
+[mysqld]
+innodb-buffer-pool-size={{ pool_size }}
+datadir={{ datadir }}
+user={{ mysql_user }}
+symbolic-links={{ link_id }}
+port={{ mysql_port }}
+
+# Variables
+pool_size: 5242880
+datadir: /var/lib/mysql
+mysql_user: mysql
+link_id: 0
+mysql_port: 3306
+
+# Outcome
+[mysqld]
+innodb-buffer-pool-size=5242880
+datadir=var/lib/mysql
+user=mysql
+symbolic-links=0
+port=3306
+```
+
+### Jinja2 templates
+
+`Jinja2` it a `python` template engine.
+
+#### String manipulation and filters
+
+```python
+# Simple substitution
+my_name = "Bond"
+message = "The name is {{ my_name }}"
+# Result:
+# "The name is Bond"
+
+# Substitution and upper case filter
+my_name = "Bond"
+message = "The name is {{ my_name | upper }}"
+# Result:
+# "The name is BOND"
+
+# Substitution and lower case filter
+my_name = "Bond"
+message = "The name is {{ my_name | lower }}"
+# Result:
+# "The name is bond"
+
+# Substitution and title filter
+my_name = "bond" # note, the name is in lower case
+message = "The name is {{ my_name | title }}"
+# Result:
+# "The name is Bond"
+
+# Substitution and replace filter
+my_name = "Bond"
+message = "The name is {{ my_name | replace('Bond', 'Bourne') }}"
+# Result:
+# "The name is Bourne"
+
+# Substitution and default filter
+my_name = "Bond"
+# note: first_name is not declared
+#   template will fail if try to use it without default filter
+message = "The name is {{ first_name | default('James') }} {{ my_name }}"
+# Result:
+# "The name is James Bond"
+```
+
+#### Filters - List and set
+
+```python
+# Get the min number
+{{ [1, 2, 3] | min }}
+# Result:
+# 1
+
+# Get the max number
+{{ [1, 2, 3] | min }}
+# Result:
+# 3
+
+
+# Get the unique numbers
+{{ [1, 2, 3, 2, 3] | unique }}
+# Result:
+# [1, 2, 3]
+
+# Merge or union two lists, will result in a merged list with unique values 
+{{ [1, 2, 3, 4] | union([4, 5]) }}
+# Result:
+# [1, 2, 3, 4, 5]
+
+# Get the common numbers in two arrays 
+{{ [1, 2, 3, 4] | intersect([4, 5]) }}
+# Result:
+# 4
+
+# Get a random number
+{{ 100 | random }}
+# Result:
+# A random integer between 1 to 100
+
+# Join list of values into a string
+{{ ["The", "name", "is", "Bond"] | join(" ") }}
+# Result:
+# "The name is Bond"
+```
+
+#### FOR loop
+
+```python
+# Print numbers from 0 to 4
+{% for number in [0, 1, 2, 3, 4] %}
+{{ number }}
+{% endfor %}
+# Result:
+# 0
+# 1
+# 2
+# 3
+# 4
+```
+
+#### Conditions
+
+```python
+# Print even numbers from 0 to 4
+{% for number in [0, 1, 2, 3, 4] %}
+  {% if number == 2 %}
+    {{ number }}
+  {% endif %}
+{% endfor %}
+# Result:
+# 0
+# 2
+# 4
+```
+
+### Ansible template filters
+
+```python
+# Get basename in Linux
+{{ "etc/host" | basename }}
+# Result:
+# "host"
+
+# Get basename in Win
+{{ "c:\windows\hosts" | win_basename }}
+# Result:
+# "host"
+
+# Separate letter from path in Win
+{{ "c:\windows\hosts" | win_splitdrive }}
+# Result:
+# ["c:", "\windows\hosts"]
+
+# Separate letter from path in Win and get the first element of the array
+{{ "c:\windows\hosts" | win_splitdrive | first }}
+# Result:
+# "c:"
+
+# Separate letter from path in Win and get path or the last element of the array
+{{ "c:\windows\hosts" | win_splitdrive | last }}
+# Result:
+# "\windows\hosts"
+```
+
+### Jinja2 in Playbooks
+
+```ini
+# /etc/ansible/hosts
+web1 ansible_host=172.20.1.100 dns_server=10.5.5.4
+web2 ansible_host=172.20.1.101 dns_server=10.5.5.4
+web3 ansible_host=172.20.1.102 dns_server=10.5.5.4
+```
+
+```yaml
+- name: Update dns server
+  hosts: all
+  tasks:
+    - nsupdate:
+        server: '{{ dns_server }}'
+```
+
+Before executing the playbook, Ansible runs the playbook through the Jinja2 templating engine, and the variables from inventory file are gathered, and then we get a new version of the playbook with the replaced variables.
+
+[Ansible filters documentation page.](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html)
+
+A specific example with replacing a server name inside index.html for 3 web servers:
+
+inventory file in `/etc/ansible/hosts`:
+
+```ini
+[web_servers]
+web1 ansible_host=172.20.1.100
+web2 ansible_host=172.20.1.101
+web3 ansible_host=172.20.1.102
+```
+
+playbook.yml:
+
+```yaml
+- hosts: web_servers
+  # we assume that NGINX is already installed on all web servers
+  tasks:
+    - name: Copy index.html to remove servers
+      template:
+        src: index.html.j2
+        dest: /var/www/nginx-default/index.html
+      
+      # if we will use copy module like this:
+      # the substitution will not be done, those will be plain copies
+
+      # copy:
+      #   src: index.html.j2
+      #   dest: /var/www/nginx-default/index.html
+
+```
+
+> NOTE: we should explicitly use `.j2` extension for a file if we want to use Jinja2 templates.
+
+index.html.j2:
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  This is {{ inventory_hostname }} server
+</body>
+</html>
+```
+
+When we start the playbook, Ansible will create 3 different subprocesses for each host:
+
+- subprocess web1
+- subprocess web2
+- subprocess web3
+
+Each process creates its own set of parameters for each host by performing `variable interpolation`:
+
+```ini
+# subprocess web1
+inventory_hostname=web1
+ansible_host=172.20.1.100
+
+# subprocess web2
+inventory_hostname=web2
+ansible_host=172.20.1.101
+
+# subprocess web3
+inventory_hostname=web3
+ansible_host=172.20.1.102
+```
+
+Then it's gathering facts from the host, so now each subprocess has a lot more information.
+
+```ini
+# subprocess web1
+inventory_hostname=web1
+ansible_host=172.20.1.100
+ansible_facts=<Host Facts of web1>
+
+# subprocess web2
+inventory_hostname=web2
+ansible_host=172.20.1.101
+ansible_facts=<Host Facts of web2>
+
+# subprocess web3
+inventory_hostname=web3
+ansible_host=172.20.1.102
+ansible_facts=<Host Facts of web3>
+```
+
+Then the process starts executing the playbook. Each subprocess executes the template task for the respective host by taking the `index.html.j2` file and performing `variable interpolation` on it. So at the end `index.html` will be generated with the respective values inside.
+
+```html
+<!-- subprocess web1 -->
+<!DOCTYPE html>
+<html>
+<body>
+  This is web1 server
+</body>
+</html>
+
+<!-- subprocess web2 -->
+<!DOCTYPE html>
+<html>
+<body>
+  This is web2 server
+</body>
+</html>
+
+<!-- subprocess web3 -->
+<!DOCTYPE html>
+<html>
+<body>
+  This is web3 server
+</body>
+</html>
+```
+
+Then the template module will also copy the files.
+
+#### NGINX configuration file example
+
+This is example of `nginx.conf.j2`:
+
+```conf
+server {
+  location / {
+    fastcgi_pass {{host}}:{{port}};
+    fastcgi_param QUERY_STRING $query_string;
+  }
+
+  location ~ \ gif|jpg|png $ {
+    root {{ image_path }};
+  }
+}
+```
+
+This is result `nginx.conf`:
+
+```conf
+server {
+  location / {
+    fastcgi_pass localhost:9000;
+    fastcgi_param QUERY_STRING $query_string;
+  }
+
+  location ~ \ gif|jpg|png $ {
+    root /data/images;
+  }
+}
+```
+
+#### Redis configuration file example
+
+This is example of `redis.conf.j2`:
+
+```conf
+bind {{ ip_address }}
+protect-mode yes
+port {{ redis_port | default('6379') }}
+tcp-backlog 511
+
+#Unix socket
+timeout 0
+
+# TCP keepalive
+tcp-keepalive {{ tcp_keepalive | default('300') }}
+
+daemonize no
+supervised no
+```
+
+This is result `redis.conf`:
+
+```conf
+bind 192.168.1.100
+protect-mode yes
+port 6379
+tcp-backlog 511
+
+#Unix socket
+timeout 0
+
+# TCP keepalive
+tcp-keepalive 300
+
+daemonize no
+supervised no
+```
+
+#### Using templates to generate resolv.conf
+
+This is example of `/etc/resolv.conf.j2`:
+
+```conf
+{% for name_server in name_servers %}
+nameserver name_server
+{% endfor %}
+```
+
+Variables:
+
+```yaml
+name_servers:
+ - 10.1.1.2
+ - 10.1.1.3
+ - 8.8.8.8
+```
+
+This is result `/etc/resolv.conf`:
+
+```conf
+nameserver 10.1.1.2
+nameserver 10.1.1.3
+nameserver 8.8.8.8
+```
+
+#### Templates in Roles
+
+When using templates in roles, create them under the `templates` directory:
+
+```text
+mysql/
+  README.md
+  templates/
+    resolv.conf.j2
+    redis.conf.j2
+  tasks/
+  handlers/
+  vars/
+  defaults/
+  meta/
+```
