@@ -233,7 +233,13 @@ db1
 localhost ansible_host=localhost
 ```
 
-> NOTE: `ansible_host` parameter is an inventory parameter used to specify FQDN or IP address of a server.
+> NOTE: `ansible_host` parameter is an inventory parameter used to specify FQDN or IP address of a server.  
+
+---
+
+> NOTE: for Windows it's `ansible_password`, but for Linux it's `ansible_ssh_pass`.
+
+---
 
 Inventory parameters:
 
