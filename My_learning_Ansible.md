@@ -272,6 +272,14 @@ all:
 
 ---
 
+### How to check if the inventory file is valid
+
+Run ping command for a server, here is the example for server `node01`:
+
+```bash
+ansible -i inventory node01 -m ping -v
+```
+
 ### Grouping and parent-child relationships
 
 Grouping example in `INI`:
