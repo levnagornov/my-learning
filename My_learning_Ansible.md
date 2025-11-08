@@ -190,7 +190,7 @@ server7.company.com
 server8.company.com
 ```
 
-> NOTE: [mail] is a group and the values below are the servers of the group
+> NOTE: `[mail]` is a group and the values below are the servers of the group
 
 Making aliases for servers:
 
