@@ -1,5 +1,11 @@
 # Ansible
 
+## Installation
+
+```bash
+sudo yum install ansible -y  # for CentOs
+```
+
 ## Ansible configuration files
 
 When ansible is installed, then the default config file will be created:
