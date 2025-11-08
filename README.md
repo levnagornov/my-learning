@@ -6,4 +6,6 @@ Here I put my notes about some topics that I explore:
 - [Fast API](./My_learning_FastApi.md)
 - [PS/SQL](./My_learning_OracleSQL.md)
 
-They are for personal use only.
+> NOTE: This is for personal use only.
+
+Created by Lev Nagornov.
