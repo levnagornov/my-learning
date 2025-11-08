@@ -1,31 +1,41 @@
 # Ansible
 
 ## Ansible configuration files
+
 When ansible is installed, then the default config file will be created:
+
 ```bash
 /etc/ansible/ansible.cfg  # default config
 ```
+
 Config file is divided into sections, each section has key-value pairs.
 
 If we have special requirements for different playbooks, we have 2 ways:
+
 1. Copy the default config file to the desired playbooks:
+
     ```bash
     /etc/ansible/ansible.cfg            # default config
     /opt/web-playbooks/ansible.cfg      # config for web playbooks
     /opt/db-playbooks/ansible.cfg       # config for db playbooks
     /opt/network-playbooks/ansible.cfg  # config for network playbooks
     ```
+
 2. If we want to store the config files in our location, then update the env variable!
+
     ```bash
     # our dir with the config
     /opt/ansible-web.cfg
     # update the env variable
     $ANSIBLE_CONFIG=/opt/ansible-web.cfg ansible-playbook playbook.yml
     ```
+
 ---
 
 ### Priority of the config files
+
 If you have many configs - then this priority of the configs will be applied:  
+
 1. Env variable (will overwrite others): `$ANSIBLE_CONFIG=/opt/ansible-web.cfg`
 2. Config in playbook dir: `/opt/web-playbooks/ansible.cfg`
 3. Config in user's home dir: `.ansible.cfg`
@@ -34,6 +44,7 @@ If you have many configs - then this priority of the configs will be applied:
 > **Note:** Don't specify ALL the parameters in your config, specify only the ones you want to overwrite from default config for example.
 
 If we need to change only ONE parameter, we can change it with environment variables:
+
 ```bash
 /etc/ansible/ansible.cfg  # default config
 gathering = implicit      # we want to set it to explicit
@@ -53,27 +64,34 @@ ansible-playbook playbook.yml
 /opt/web-playbooks/ansible.cfg
 gathering = explicit  
 ```
+
 ---
 
 ### How to view configuration files
+
 ```bash
-$ ansible-config list  # list all configurations
-$ ansible-config view  # shows the current active config file
-$ ansible-config dump  # shows the current comprehensive settings
+ansible-config list  # list all configurations
+ansible-config view  # shows the current active config file
+ansible-config dump  # shows the current comprehensive settings
 ```
+
 Example of the output:
+
 ```bash
 $ export ANSIBLE_GATHERING=explicit
 $ ansible-config dump | grep GATHERING
 # Output
 #    DEFAULT_GATHERING(env: ANSIBLE_GATHERING) = explicit
 ```
+
 ---
 
 ### YAML
+
 All ansible playbooks are written in YAML.
 
-#### Key-Value pairs:
+#### Key-Value pairs
+
 ```yaml
 Fruit: Apple
 Vegetable: Carrot
@@ -83,7 +101,8 @@ Meat: Chicken
 
 > NOTE: Must be a colon then a space.
 
-#### Array or List:
+#### Array or List
+
 ```yaml
 Fruits:
 - Orange
@@ -94,9 +113,11 @@ Vegetables:
 - Cauliflower
 - Tomato
 ```
+
 > NOTE: Dash indicates that this is an element of the array.
 
 #### Dictionary or Map
+
 ```yaml
 Banana:
     Calories: 105
@@ -108,9 +129,11 @@ Grapes:
     Fat: 0.3 g
     Carbs: 16 g
 ```
+
 > NOTE: You should have the same indents for all the elements in a dictionary (map)
 
 Example of Key-Value that contains Dictionary that contains List
+
 ```yaml
 Fruits:
 - Banana:
@@ -122,14 +145,18 @@ Fruits:
     Fat: 0.3 g
     Carbs: 16 g
 ```
+
 > Note: Dictionaries - UNordered, List - ordered.
 > NOTE: Comments are lines that start with #.
 
 ![example](images/image.png)
+
 --
 
 ## Ansible inventory
+
 Ansible can work with multiple systems at the same time. In order to do that, Ansible needs to establish connectivity to those servers by:
+
 - SSH - for Linux
 - Powershell Remoting - for Windows
 
@@ -138,12 +165,14 @@ Ansible is `agentless`.
 > NOTE: `Agentless` means you don't need to install anything on the target servers, to make Ansible work there, only SSH connection is required.
 
 Default location of the inventory file:
+
 ```bash
 # inventory file default location
 /etc/ansible/hosts/
 ```
 
 The inventory file is an INI file format:
+
 ```ini
 server1.company.com
 server2.company.com
@@ -160,9 +189,11 @@ server6.company.com
 server7.company.com
 server8.company.com
 ```
+
 > NOTE: [mail] is a group and the values below are the servers of the group
 
 Making aliases for servers:
+
 ```ini
 # Sample Inventory File
 
@@ -185,9 +216,11 @@ db1
 
 localhost ansible_host=localhost
 ```
+
 > NOTE: `ansible_host` parameter is an inventory parameter used to specify FQDN or IP address of a server.
 
 Inventory parameters:
+
 - `ansible_connection` - ssh or winrm or localhost | How ansible connects to a server
 - `ansible_port` - 22 for SSH or 5986 for WINRM
 - `ansible_user` - root or administrator
@@ -197,14 +230,17 @@ Inventory parameters:
 --
 
 ## Inventory formats
+
 Ansible support 2 format types for `inventory file`:
-- `INI` 
+
+- `INI`
 - `YAML`
 
 Simple `INI` file - `inventory file` is enough for a small company / startup.  
 `YAML` files are needed for big corporation. This format allows to group server by `roles`, `geographic location` and anything else.
 
 Example of `YAML`:
+
 ```yaml
 all:
     children:
@@ -217,10 +253,13 @@ all:
                 db1.example.com:
                 db2.example.com:
 ```
+
 ---
 
 ### Grouping and parent-child relationships
+
 Grouping example in `INI`:
+
 ```ini
 [webservers:children]
 webservers_us
@@ -234,7 +273,9 @@ server2_us.com ansible_host=192.168.8.102
 server1_eu.com ansible_host=10.12.0.101
 server2_eu.com ansible_host=10.12.0.102
 ```
+
 Grouping example in `YAML`:
+
 ```yaml
 all:
     children:
@@ -253,17 +294,20 @@ all:
                         server2_eu.com:
                             ansible_host: 10.12.0.102
 ```
+
 This two inventory files are identical in terms of data.
 
 ---
 
 ### Ansible variables
+
 Variable can store information that varies with each host.
 
 Example of variables in `inventory file`:  
 ![alt text](images/image-1.png)
 
 We can also define variable INSIDE the playbook:
+
 ```yaml
 # Playbook.yml
 name: Add DNS server to resolv.conf
@@ -277,6 +321,7 @@ tasks:
 ```
 
 We can have variables in a separate file:
+
 ```yaml
 # variables.yml
 variable1: value1
@@ -284,6 +329,7 @@ variable2: value2
 ```
 
 Example of using variables in a playbook #1:
+
 ```yaml
 # Playbook.yml
 name: Add DNS server to resolv.conf
@@ -295,10 +341,11 @@ tasks:
     path: /etc/resolv/conf
     line: 'nameserver {{ dns_server }}'
 ```
+
 > NOTE: to use variables. Declare them under `vars`. Then use double curly braces and but it like this `{{ dns_server }}`.
 
-
 Example of using variables in a playbook #2:
+
 ```yaml
 # Playbook.yml
 name: Set Firewall Configurations
@@ -360,18 +407,23 @@ http_port: 8081
 snmp_port: 161-162
 inter_ip_range: 192.0.2.0
 ```
+
 The format of variables with `{{ }}` is called Jinja2 Templating.
 
 Rule of assigning variables with Jinja2 in YAML:
+
 ```yaml
 source: {{ inter_ip_range }}   # incorrect
 source: '{{ inter_ip_range }}' # correct
 source: someThing{{ inter_ip_range }}here # correct
 ```
+
 ---
 
 ### Ansible variable types
+
 Types:
+
 - strings
 - numbers (int and float)
 - boolean
@@ -379,6 +431,7 @@ Types:
 - dictionary
 
 Boolean values:
+
 | Boolean TRUE value | Boolean FALSE value |
 | ------------------ | ------------------- |
 | True               | False               |
@@ -405,16 +458,20 @@ user:                 # dictionary
     password: "secret"
 message: "Username: {{ user.name }} Password: {{ user.password }}" # usage of dictionary
 ```
+
 ---
 
 ### Registering variables and variable precedence
+
 In ansible there are different levels of defining variables:
+
 - GROUP level
 - HOST level
 - PlAY level
 - EXTRA-VAR level
 
 Example: if we have an INI inventory file with different host variables and one `dns_server` variable that is equal for all of them, but one server has it's own dns_server. This var will overwrite the group level var:
+
 ```ini
 /etc/ansible/hosts
 # hosts
@@ -431,9 +488,11 @@ web3
 [web_servers:vars]
 dns_server=10.5.5.3
 ```
-For `web2` dns_server will be used from HOST level: `dns_server=10.5.5.4` 
+
+For `web2` dns_server will be used from HOST level: `dns_server=10.5.5.4`
 
 Defining a `dns_server` in playbook, so it's PLAY level and will overwrite GROUP and HOST levels:
+
 ```yaml
 ---
 - name: Configure DNS Server
@@ -446,12 +505,15 @@ Defining a `dns_server` in playbook, so it's PLAY level and will overwrite GROUP
 ```
 
 Extra-var usage - the HIGHEST precedence:
+
 ```bash
 ansible-playbook playbook.yml --extra-vars "dns-server=10.5.5.6"
 ```
+
 ---
 
-### How to print the output of the TASK:
+### How to print the output of the TASK
+
 ```yaml
 ---
 - name: Check /etc/hosts file
@@ -470,13 +532,16 @@ ansible-playbook playbook.yml --extra-vars "dns-server=10.5.5.6"
       var: result.rc
 
 ```
+
 The result of SHELL command looks like this:
 ![alt text](images/image-2.png)
 
 Or else we can use `-v` option:
+
 ```bash
-$ ansible-playbook -i inventory playbook.yml -v
+ansible-playbook -i inventory playbook.yml -v
 ```
+
 And the playbook looks like this:
 
 ```yaml
@@ -486,17 +551,21 @@ And the playbook looks like this:
   tasks:
   - shell: cat /etc/hosts
 ```
+
 Will print the WHOLE result SHELL object.  
 
 ---
 
 ### Variable scope
+
 Scopes:
+
 - Host scope
 - Play scope
 - Global scope
 
 In this example, we have declared host var `dns_server` for `web2` at `/etc/ansible/hosts`:
+
 ```ini
 web1 ansible_host=172.20.1.100
 web2 ansible_host=172.20.1.101 dns_server=10.5.5.4
@@ -512,10 +581,12 @@ web3 ansible_host=172.20.1.102
       msg: '{{ dns_server }}' 
 ...
 ```
+
 So the variable will be printed only for `web2`, because it's scope is a host:  
 ![alt text](images/image-3.png)
 
 Another example:
+
 ```yaml
 ---
 - name: Play 1
@@ -538,6 +609,7 @@ It will fail for the second one:
 ![alt text](images/image-4.png)
 
 Global scope:
+
 ```bash
 ansible-playbook playbook.yml --extra-vars "dns_server=10.1.1.1"
 ```
@@ -547,7 +619,9 @@ ansible-playbook playbook.yml --extra-vars "dns_server=10.1.1.1"
 ---
 
 ### Magic variables - hostvars
+
 By default `host variables` are not accessible for other hosts. If want to access them, use `magic variables`:
+
 ```yaml
 ---
 - name: Print dns server
@@ -567,11 +641,14 @@ By default `host variables` are not accessible for other hosts. If want to acces
         msg: '{{ hostvars['web2'].ansible_facts.processor }}'
 ...
 ```
+
 > NOTE: `msg: '{{ hostvars['web2'].ansible_facts.processor }}'` is equal to `msg: '{{ hostvars['web2']['ansible_facts']['processor'] }}'` You will get the same result.  
 ---
 
 ### Magic variables - groups
+
 Groups can return all the hosts under a given group:
+
 ```ini
 /etc/ansible/hosts
 web1 ansible_host=172.20.1.100
@@ -592,16 +669,20 @@ web3
 ```
 
 Then if you have this in your playbook, you can get:
+
 ```yaml
 msg: '{{ groups['americas'] }}'
 # Output:
 # web1
 # web2
 ```
+
 ---
 
 ### Magic variables - group_names
+
 `group_names` returns all the groups the current host is part of
+
 ```ini
 /etc/ansible/hosts
 web1 ansible_host=172.20.1.100
@@ -622,15 +703,18 @@ web3
 ```
 
 Then if you have this in your playbook, you can get:
+
 ```yaml
 msg: '{{ group_names }}' # in web1 playbook
 # Output:
 # web_servers
 # americas
 ```
+
 ---
 
 ### Magic variables - inventory_hostname
+
 `inventory_hostname` gives the name configured for the host in `inventory file`, not the host name or SQDN.
 
 There are more `magic variables`, read about them here: [official page](https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_vars_facts.html)
@@ -638,8 +722,10 @@ There are more `magic variables`, read about them here: [official page](https://
 ---
 
 ### Ansible facts
-When Ansible connects to a machine, firstly it collects 
+
+When Ansible connects to a machine, firstly it collects
 Information about the machine:
+
 - basic system information
 - system architecture
 - OS version
@@ -658,8 +744,8 @@ It's done using `Setup` module and it's run automatically even if you didn't use
 
 ![alt text](images/image-6.png)  
 
-
 All data is store in variable `ansible_facts`:
+
 ```yaml
 ---
 - name: Print hello message
@@ -669,9 +755,11 @@ All data is store in variable `ansible_facts`:
         var: ansible_facts
 ...
 ```
+
 These details could come in handy within your playbooks. For example, when configuring devices and logical volumes on your nodes.
 
 If we don't want to gather facts, we can disable it:
+
 ```yaml
 ---
 - name: Print hello message
@@ -682,6 +770,7 @@ If we don't want to gather facts, we can disable it:
         var: ansible_facts
 ...
 ```
+
 The behavior is set in Ansible configuration file called Gathering:  
 ![alt text](images/image-7.png)  
 
@@ -690,16 +779,19 @@ If you specified some host in a playbook, then ansible facts will be collected o
 ![alt text](images/image-8.png)
 
 ## Ansible playbooks
+
 `Playbook` is a `yaml` file and contains of `plays`.
 `Play` defines a set of activities to be run on one `host` or a `group of hosts`.
 A `task` is a single action to be performed on a `host`.  
 
 Tasks:
+
 - Execute a command
 - Install a package
 - Shutdown or restart host
 
 Example of an playbook.yaml:
+
 ```yaml
 ---
 - name: Play 1
@@ -724,6 +816,7 @@ Example of an playbook.yaml:
 ```
 
 Playbook format:
+
 ```yaml
 ---
 # Playbook is a list of dictionaries
@@ -760,6 +853,7 @@ Playbook format:
 ```
 
 How to run an ansible playbook:
+
 ```shell
 ansible-playbook playbook.yml
 ansible-playbook --help
@@ -768,12 +862,15 @@ ansible-playbook --help
 ---
 
 ### Verifying ansible playbooks
+
 Ansible provides several modes for verifying playbooks without any actual changes on the hosts:
-- Check mode `--check` a.k.a. dry run, don't save changes 
+
+- Check mode `--check` a.k.a. dry run, don't save changes
 - Diff mode `--diff` shows before-and-after state
 - Syntax check `--syntax-check`, just checks syntax, not running
 
 Example:
+
 ```shell
 ansible-playbook update_service.yml --check
 ansible-playbook configure_database.yml --check --diff
@@ -782,17 +879,21 @@ ansible-playbook configure_database.yml --check --diff
 > NOTE: not all the modules support `check mode`.
 
 There is also `ansible-lint` to check ansible playbooks style:
+
 ```shell
 ansible-lint playbook.yml
-``` 
+```
+
 ---
 
 ### Conditionals
+
 Conditions are used to run tasks only when they satisfy the given condition.  
 
 > NOTE: The keyword for using a condition is `when`.  
 
 Example for checking OS to use a proper package manager:
+
 ```yaml
 ---
 - name: Install NGINX
@@ -817,7 +918,7 @@ Example for checking OS to use a proper package manager:
 
 Example for using `loops`:
 
-> NOTE: The keyword for using a loop is `loop`. 
+> NOTE: The keyword for using a loop is `loop`.
 
 ```yaml
 ---
@@ -842,6 +943,7 @@ Example for using `loops`:
 ```
 
 Example of using the previous result in a condition:
+
 ```yaml
 ---
 - name: Check status of a service and email if its down
@@ -859,6 +961,7 @@ Example of using the previous result in a condition:
 ```
 
 Specific example - "Install a specific version of ngnix only on your Ubuntu server 18.04":
+
 ```yaml
 ---
 - name: Install ngnix on Ubuntu 18.04
@@ -871,6 +974,7 @@ Specific example - "Install a specific version of ngnix only on your Ubuntu serv
 ```
 
 Specific example - "You app has different requirements for different environments, such as production, test and etc.":
+
 ```yaml
 ---
 - name: Deploy configuration files
@@ -883,6 +987,7 @@ Specific example - "You app has different requirements for different environment
 ```
 
 Specific example - "Perform tasks on all servers, but start the web app  service only on the servers in the production environment.":
+
 ```yaml
 ---
 - name: Install required packages
@@ -901,12 +1006,15 @@ Specific example - "Perform tasks on all servers, but start the web app  service
   when: environment == 'production'
 ...
 ```
+
 ---
 
 ### Loops
+
 `loop` is a new syntax in ansible.  
 
 Example of creating many users with `loop`:
+
 ```yaml
 ---
 - name: Create users
@@ -919,8 +1027,10 @@ Example of creating many users with `loop`:
       - ...
 ...
 ```
+
 ---
 Example of creating many users with IDs with `loop`:
+
 ```yaml
 ---
 - name: Create users
@@ -933,9 +1043,11 @@ Example of creating many users with IDs with `loop`:
       - ...
 ...
 ```
+
 ---
 
 ### Loops with_*
+
 `with_items` is an old syntax in ansible.  
 
 Those are special modules for different collections, like files, dbs and etc...
@@ -963,64 +1075,69 @@ Those are special modules for different collections, like files, dbs and etc...
 
 ...
 ```
+
 ---
 
 ### Ansible modules
+
 There different modules in ansible:
+
 - system (os level)
-    - user
-    - group
-    - hostname
-    - ping 
-    - service
-    - iptables
-    - lvg
-    - lvol
-    - make
-    - mount
-    - timezone
-    - systemd
-    - ...
+  - user
+  - group
+  - hostname
+  - ping
+  - service
+  - iptables
+  - lvg
+  - lvol
+  - make
+  - mount
+  - timezone
+  - systemd
+  - ...
 - commands (execute commands or scripts)
-    - command
-    - script
-    - shell
-    - expect  (interactive exec, prompts)
-    - raw
+  - command
+  - script
+  - shell
+  - expect  (interactive exec, prompts)
+  - raw
 - file
-    - acl
-    - archive
-    - copy
-    - file
-    - find
-    - lineinfile
-    - replace
-    - stat
-    - template
-    - unarchive
+  - acl
+  - archive
+  - copy
+  - file
+  - find
+  - lineinfile
+  - replace
+  - stat
+  - template
+  - unarchive
 - database
-    - mongodb
-    - mssql
-    - mysql
-    - postgresql
-    - proxysql
-    - vertica
+  - mongodb
+  - mssql
+  - mysql
+  - postgresql
+  - proxysql
+  - vertica
 - cloud
-    - amazon
-    - docker
-    - azure
-    - ...
+  - amazon
+  - docker
+  - azure
+  - ...
 - windows
 - ...
 
 #### Module - command
+
 Executes a command on a remote node.  
 
-> NOTE: `ansible.builtin.command` == `command` 
+> NOTE: `ansible.builtin.command` == `command`
 
-https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html
+<https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html>
 
 Example of usage:
+
 ```yaml
 ---
 - name: Play 1
@@ -1058,9 +1175,11 @@ Example of usage:
 ```
 
 #### Module - script
+
 Runs a local script on a remote node after transferring it.
 
 Example of usage:
+
 ```yaml
 ---
 - name: Play 1
@@ -1072,9 +1191,11 @@ Example of usage:
 ```
 
 #### Module - service
+
 Manages services like - start, stop, restart
 
 Example of usage:
+
 ```yaml
 ---
 - name: Start Services in order
@@ -1101,9 +1222,11 @@ Example of usage:
 ```
 
 #### Module - lineinfile
+
 Search for a line in a file and replace it or add it if it doesn't exist.
 
 Example of usage:
+
 ```ini
 /etc/resolv.conf
 nameserver 10.1.250.1
@@ -1124,14 +1247,17 @@ nameserver 10.1.250.2
 ```
 
 ## Ansible plugins
+
 Ansible Plugin - is a piece of code that extends or modifies Ansible functionality (extra or custom behavior).
 Plugin types:
+
 - Inventory plugin
 - Module plugin
 - Action plugin
 - Callback plugin
 
 Examples:
+
 - `Dynamic Inventory plugin` fetch real-time information about your cloud resources directly from your API.
 - `Module plugin` integrates your cloud provider API.
 - `Action plugin` simplifies management of load balancing rules, SSL certificates, Health Checks.
@@ -1142,18 +1268,22 @@ Examples:
 - `Callback plugin` provide hooks into Ansible's lifecycle, capture events and perform custom actions during playbook execution.
 
 ### Module and Plugin index
+
 You can find it here:
-https://docs.ansible.com/ansible/latest/collections/all_plugins.html
+<https://docs.ansible.com/ansible/latest/collections/all_plugins.html>
 
 ## Ansible handlers
+
 Useful when you need to restart a server after a task.  
 
 With handlers you can define an action to restart the web server service and associate it with the task that modifies the configuration file. It creates a dependency between the task and the handler:
+
 - Task triggered by `events` or `notifications`
 - Defined in playbook, executed when notified by a task
 - Manage actions based on system state/configuration changes
 
 Example:
+
 ```yaml
 ---
 - name: Deploy application
@@ -1175,8 +1305,10 @@ Example:
 ```
 
 ## Ansible Roles
+
 `Roles` == `Libraries`  
 `Roles` for a server means to create a server with a specific settings and installed packages:
+
 - `mysql role`:
   - install pre-requisites
   - instal mysql
@@ -1189,6 +1321,7 @@ Example:
   - configure custom web pages
 
 So this is the equivalent to do via `playbook`:
+
 ```yaml
 ---
 - name: Install and configure MySQL
@@ -1209,6 +1342,7 @@ So this is the equivalent to do via `playbook`:
 ```
 
 Instead of rewriting this again and again, we can package it into a `role`:
+
 ```yaml
 # Playbook
 - name: Install and configure MySQL
@@ -1235,15 +1369,16 @@ tasks:
 ```
 
 Roles introduce a set of best practices:
+
 - All `tasks` should be in a `task directory`
 - All `variables` used by these task should go into `default directory`
 - All `handlers` go into the `handlers directory`
 - Any `templates` used by playbooks go to the `template directory`
 
-
 Roles can be shared with other developers via [Ansible-Galaxy](https://galaxy.ansible.com/ui/)
 
 To create a skeleton of a project use `ansible-galaxy` tool:
+
 ```shell
 # example for a custom role 
 ansible-galaxy init mysql
@@ -1260,8 +1395,10 @@ ansible-galaxy init mysql
 ```
 
 To assign your custom role to your playbook you choose 2 ways:
+
 1. put role in the common ansible directory (`/etc/ansible/roles`). It's defined in the `/etc/ansible/ansible.cfg` like `roles_path = /etc/ansible/roles`
 2. put role folder beside playbook:
+
 ```shell
 # 2. Put your role beside playbook
 # my-playbook:
@@ -1278,6 +1415,7 @@ To assign your custom role to your playbook you choose 2 ways:
 ```
 
 Your playbook will look like this:
+
 ```yaml
 # playbook.yaml
 - name: Install and configure MySQL
@@ -1289,13 +1427,16 @@ Your playbook will look like this:
 ---
 
 ### Use 3rd party roles
+
 Search for a role:
+
 - via Ansible-Galaxy UI
 - via command line `ansible-galaxy search mysql`
 
 Install with `ansible-galaxy install geerlingguy.mysql`. It will be extracted to the common directory of roles `/etc/ansible/roles`.
 
 Use roles in the playbook:
+
 ```yaml
 # 1. Simple approach in playbook.yaml
 - name: Install and configure MySQL
@@ -1314,6 +1455,7 @@ Use roles in the playbook:
 ```
 
 To configure a server with both database and web application on it:
+
 ```yaml
 
 - name: Install and configure MySQL and Web Server
@@ -1325,6 +1467,7 @@ To configure a server with both database and web application on it:
 ```
 
 To configure two different servers - one for database and one for web application:
+
 ```yaml
 
 - name: Install and configure MySQL
@@ -1344,7 +1487,108 @@ To install role in the current directory: `ansible-galaxy install geerlingguy.my
 
 ---
 
-
 ## Ansible Collections
-Install ciso collection:  
+
+For large network infrastructure like:
+
+- CISCO
+- Juniper
+- Arista
+
+Ansible provides a set of built-in modules for network automation.
+
+Example of Ansible collections:
+
+- network.cisco
+- network.juniper
+- network.arista
+
+Each collection contains vendor specific modules, roles and playbooks tailored for managing network devices.
+
+Install CISCO collection:  
 `ansible-galaxy collection install network.cisco`
+
+This will allow you to seamlessly integrate network automation tasks to CISCO devices into your existing Ansible workflows.
+
+Collection encapsulates these components:
+
+- package
+- distribute modules
+- roles
+- plugins
+- etc.
+
+Collections are self-contained, so you can access and share them easily.
+
+Collections can be created by community and vendors.
+
+### Collection benefits
+
+#### Expanded functionality
+
+Here we are using Amazon AWS to extending Ansible native capabilities.
+
+Install the collection:
+
+```bash
+ansible-galaxy collection install amazon.aws
+```
+
+Use the modules inside the playbook:
+
+```yaml
+- hosts: localhost
+  collections:
+    - amazon.aws
+  tasks:
+    - name: Create an S3 bucket
+      aws_s3_bucket:
+        name: my-bucket
+        region: us-west-1
+```
+
+#### Modularity and Reusability
+
+```text
+my_collection/
+- docs/
+- galaxy.yml
+- plugins/modules/my_custom_module.py
+- README.md
+- roles/my_custom_role/tasks/main.yml
+```
+
+Example of creating a custom collection with specific roles, modules and plugins:
+
+```yaml
+- hosts: localhost
+  collections:
+    - my_namespace.my_collection
+
+  roles:
+    - my_custom_role
+
+  tasks:
+    - name: Use a custom module
+      my_custom_module:
+        param: value
+```
+
+#### Simplified distribution and management
+
+Example of versioning and dependency management. This is `requirement.yml`:
+
+```yaml
+collections:
+  - name: amazon.aws
+    version: "1.5.0"
+  - name: community.mysql
+    src: https://github.com/ansible-collections/community.mysql
+    version: "1.2.1"
+```
+
+You can specify the required collections and their versions in a `requirement.yml` file. To use it, run:
+
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
