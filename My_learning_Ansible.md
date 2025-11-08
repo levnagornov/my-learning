@@ -1172,6 +1172,7 @@ Example of usage:
 ---
 - name: Play 1
   hosts: localhost
+  connection: local # important to use if connect to a localhost
   tasks:
     - name: Execute command 'date'
       command: date
