@@ -38,6 +38,16 @@ If we have special requirements for different playbooks, we have 2 ways:
 
 ---
 
+### Hpw to disable the SSH host key in ansible.conf
+
+```bash
+vi /home/bob/playbooks/ansible.cfg # create a config file
+
+# add below and save
+[defaults]
+host_key_checking = False
+```
+
 ### Priority of the config files
 
 If you have many configs - then this priority of the configs will be applied:  
