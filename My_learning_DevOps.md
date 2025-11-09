@@ -732,3 +732,62 @@ Now you can push an image to this private registry:
 - Tag the image first `docker image tag my-image localhost:5000/my-image`
 - Push with `docker push localhost:5000/my-image`
 - Then you can pull this image within the network like this `docker pull localhost:5000/my-image` or `docker pull 192.168.56.100:5000/my-image`, the second command is for accessing from another host but in the same environment.
+
+### Docker engine
+
+`Docker engine` is referred to a host with Docker installed on it. It contains:
+
+- `Docker CLI`
+- `Docker REST API server`
+- `Docker Daemon`
+
+`Docker Daemon` is a background process that manages Docker objects, such as images, containers, volumes and networks.
+
+`Docker REST API server` is the API interface that programs can use to talk to the daemon and provide instructions. You can create your own tools with it.
+
+`Docker CLI` is command line interface for interaction via a terminal. It uses `Docker REST API server` to give commands to `Docker Daemon`.
+
+> Note: `Docker CLI` need NOT necessarily to be installed on the same host. It could be on another system like a laptop and can still work with a remote `Docker engine`. To use it specify `-H` option like this `docker -H=remote-docker-engine:2375`. Real example to run NGINX `docker -H=10.123.2.1:2375 run nginx`
+
+#### Containerization
+
+Under the hood Docker uses **namespaces** to isolate workspace:
+
+- Process IDs
+- Networks
+- Mounts
+- InterProcesses
+- Unix timesharing
+
+These all are created in their own namespace and this provide the isolation between the containers.
+
+For example of the techniques is process ID namespace. On your host you can have already processes with ID #1, #2, #3 and #4 and you boot up a container where the underlying Linux system also wants to start processes with ID #1 and #2. And since there is no hard isolation between the container and the running host, so the processes running in the container are in fact running on the host. And two processes can't have the same ID, here the namespace is used. Each process can have multiple process IDs associated with it. So on host processes #5 and #6 will be created and those will me mapped as processes #1 and #2 in container.
+
+```text
+        Linux system
+PID: 1
+- PID: 2                             |
+- PID: 3    Child system (container) v
+- PID: 4     ________________________
+- PID: 5 -> | PID: 1                 |
+- PID: 6 -> | - PID: 2               |
+            |________________________|
+```
+
+#### cgroups
+
+`Docker host` and `Docker containers` are **sharing** the same systems resources: `CPU` and `Memory`.
+
+> NOTE: By the default there is NO restriction how much of a resource a container can use.
+
+We should restrict the usage, otherwise a container can use all the resources of the host. `Docker` uses `cgroups` or `control groups` to restrict the amount of hardware resources allocated to each container. You can use `--cpu` and `--memory` to specify the restriction:
+
+```bash
+# Limit to 50% usage of the host CPU
+docker run --cpu=.5 ubuntu
+
+# Limit to 100 megabytes usage of the host RAM
+docker run --memory=100m ubuntu
+```
+
+More about resource constraints here - [Docker resource constraints](https://docs.docker.com/engine/containers/resource_constraints/)
