@@ -791,3 +791,187 @@ docker run --memory=100m ubuntu
 ```
 
 More about resource constraints here - [Docker resource constraints](https://docs.docker.com/engine/containers/resource_constraints/)
+
+### Docker storage
+
+#### Docker file system
+
+When Docker is installed, the default location is `/var/lib/docker`, it creates the following dirs:
+
+```text
+/var/lib/docker/
+- aufs/
+- containers/
+- image/
+- volumes/
+...
+```
+
+#### Docker layered architecture
+
+When Docker builds images, it builds these in a layered architecture. Each line of instruction in the `Dockerfile` creates a new layer in the Docker image with just the changes from the previous layer. For example:
+
+```Dockerfile
+# Dockerfile
+FROM ubuntu
+RUN apt-get update && apt-get -y install python
+RUN pip install flask flask-mysql
+COPY . /opt/source-code
+ENTRYPOINT FLASK_APP=/opt/source-code/app.py flask run
+
+# Layer 1. Base ubuntu layer                                       | size 120 MB
+# Layer 2. Changes in apt packages (update and install python)     | size 306 MB
+# Layer 3. Changes in pip packages (install flask and flask-mysql) | size 6.3 MB
+# Layer 4. Copy source code                                        | size 229 B
+# Layer 5. Update the entrypoint                                   | size 0 B
+
+# docker build Dockerfile -t user/my-custom-app
+```
+
+> NOTE: Each layer only stores the changes from the previous layer and it's reflected in the size.
+
+Now if we have another `Dockerfile2` and we want to build and image. Here we have the same base image, the same python and flask. So Docker will use the layers from the previous app:
+
+```Dockerfile
+# Dockerfile2
+FROM ubuntu
+RUN apt-get update && apt-get -y install python
+RUN pip install flask flask-mysql
+COPY app2.py /opt/source-code
+ENTRYPOINT FLASK_APP=/opt/source-code/app2.py flask run
+
+# Layer 1. Base ubuntu layer                                       | size 0, will be reused
+# Layer 2. Changes in apt packages (update and install python)     | size 0, will be reused
+# Layer 3. Changes in pip packages (install flask and flask-mysql) | size 0, will be reused
+# > Layer 4. Copy source code                                      | will be created
+# > Layer 5. Update the entrypoint                                 | will be created
+
+# docker build Dockerfile -t user/my-custom-app2
+```
+
+This allows Docker to build images faster and efficiently saves space. This is also applicable when you just update the application code!
+
+> NOTE: Once the `build` is complete, you can NOT modify the the contents of these layers, they are `read only` now. When you execute the `docker run` it actually creates `Layer 6.` - `Container layer` and this layer is `writable`. This writable layer is used for storing data and files that is created by running application inside. This file be removed once the container exits, unless `volume` or `mount` bind is setup.
+
+#### Volumes and bind mounting
+
+If we have a DB and we want to save the data during the run of a container, we should use `volumes`. We can create a volume by running this command:
+
+```bash
+docker volume create my_data_volume
+```
+
+It will create a dir:
+
+```text
+/var/lib/docker/
+- volumes/
+- - my_data_volume/
+```
+
+To mount this created volume use `-v` (old way) or `--mount` (new way):
+
+```bash
+# Syntax
+docker run -v <volume_name_on_host>:<path_in_container> image_name
+
+# MySQL example:
+docker run -v my_data_volume:/var/lib/mysql mysql
+```
+
+After container is destroyed, the data will remain in the `/var/lib/docker/volumes` and when we start the container again, the data can be used.
+
+> NOTE: If you run `docker run` with `-v` and new volume name, docker will create a new volume automatically.
+
+This is called `volume mounting` as we are mounting in `/var/lib/docker/volumes`.  
+There is also a second type of mounting. If we would like to use a different location with existing data, we can use `bind mounting`:
+
+```bash
+# Syntax
+docker run -v <path_for_mount_on_host>:<path_in_container> image_name
+
+# MySQL example:
+# NOTE: we are using a custom, not default location!
+docker run -v /my_data/mysql:/var/lib/mysql mysql
+```
+
+This is **new and recommended way** of mounting with `--mount` instead of `-v`:
+
+```bash
+# Old way
+docker run -v /my_data/mysql:/var/lib/mysql mysql
+
+# New way
+docker run \
+    --mount type=bind,source=/data/mysql,target=/var/lib/mysql \
+    mysql
+```
+
+#### Storage drivers
+
+`Storage drivers` are responsible for:
+
+- maintaining the layered architecture
+- creating a writable layer
+- moving file across the layers
+- etc...
+
+So `Docker` uses `storage drivers` to enable layered architecture.
+
+These are the common storage drivers:
+
+- AUFS
+- ZFS
+- BTRFS
+- Device Mapper
+- Overlay
+- Overlay2
+
+The selection of the storage driver depends on the underlying OS being used. 
+
+`Debian` and `Ubuntu` are using `AUFS`, but it's not available for `Fedora` or `CentOS`. Use `Device Mapper` there instead. Docker will choose the storage driver automatically.
+
+Different storage drivers provide different performance and speed characteristics.
+
+To find the currently used `storage driver` run:
+
+```bash
+docker info | grep -i storage
+
+# Output
+# Storage Driver: aufs
+#  Root Dir: /var/lib/docker/aufs
+```
+
+The structure of `/var/lib/docker/aufs`:
+
+```text
+/var/lib/docker/aufs/
+- diff/
+- layers/
+- mnt/     # mount
+```
+
+Each `storage driver` stores data differently.
+
+To check disk size is used by docker run:
+
+```bash
+docker system df
+docker system df -v # break down by image
+```
+
+### Docker networks
+
+Example of connecting a network to a container:
+
+```bash
+docker run --name webapp \
+  -d \
+  --network my-super-network \
+  -e DB_Host=mysql-db \
+  -e DB_Password=db_pass123 \
+  -p 38080:8080 \
+  -l mysql-db:mysql-db \
+  user/my-simple-webapp-mysql
+```
