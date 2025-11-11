@@ -154,7 +154,7 @@ select 'I''m using quote operator in SQL statements' as "Quote Operator" from du
 -- Or just use a quote operator
 select q'[I'm using quote operator in SQL statements]' as "Quote Operator" from dual;
 
--- instead of [ and ] we can use any other sybmol, like < and > or even d
+-- instead of [ and ] we can use any other symbol, like < and > or even d
 select q'<I'm using quote operator in SQL statements>' as "Quote Operator" from dual;
 select q'dI'm using quote operator in SQL statementsd' as "Quote Operator" from dual;
 ```
@@ -211,8 +211,8 @@ ___
 
 `ORDER BY`  
 Sort result by columns
-> `NULL`s will be desplyed at the `END` when `ASC`  
-> `NULL`s will be desplyed at the `START` when `DESC`
+> `NULL`s will be displayed at the `END` when `ASC`  
+> `NULL`s will be displayed at the `START` when `DESC`
 
 ```sql
 SELECT 
@@ -289,7 +289,7 @@ OFFSET 1 ROW FETCH FIRST 10 ROWS ONLY;
 ___
 
 `Substitution variables` - `&`  
-If want to make a window promt to enter the value, just for ease of typing, no benefit in performance.  
+If want to make a window prompt to enter the value, just for ease of typing, no benefit in performance.  
 You can do it in `SQL Developer` or in `SQL*Plus`.  
 `SQL*Plus` will show you verification lines.  
 
@@ -358,23 +358,23 @@ DEF column_name;
 
 ___
 
-`ACCEPT` and `PROMT`  
-The most reliable and robust method for getting input from the user is to explicitly promt for values using the ACCEPT and PROMT commands.
-ACCEPT emp_id PROMT 'Please Enter an Employee ID:';
+`ACCEPT` and `PROMPT`  
+The most reliable and robust method for getting input from the user is to explicitly prompt for values using the ACCEPT and PROMPT commands.
+ACCEPT emp_id PROMPT 'Please Enter an Employee ID:';
 
 `ACCEPT` takes input from the user and stores it in a user variable.  
-`PROMT` is used to display a message to the user for supplying a brief explanation of what your script is going to accoplish.
-The variable is stored until this session is temrminated.
+`PROMPT` is used to display a message to the user for supplying a brief explanation of what your script is going to accomplish.
+The variable is stored until this session is terminated.
 ___
 
 `SET VERIFY ON` and `SET VERIFY OFF`  
-`VERIFY` - dispays the status of the variable before and after the substitution.
+`VERIFY` - displays the status of the variable before and after the substitution.
 So `VERIFY` does the same verification as in `SQL PLUS`.
 ___
 
 `SET DEFINE OFF`
-> By defauled SET DEFINE is ON!
-Will be needed to use & in strings, otherwise it will promt for a variable value.
+> By default SET DEFINE is ON!
+Will be needed to use & in strings, otherwise it will prompt for a variable value.
 
 ```sql
 SELECT * FROM departments WHERE department_name = 'R&D';
@@ -388,19 +388,19 @@ Functions must be created before calling them, otherwise:
 
 In Oracle there are 2 types of functions:
 
-- `Sigle-Row` functions;
+- `Single-Row` functions;
 - `Multiple-Row` functions or Group functions;
 
-`Sigle-Row` functions - recieve only one input and return output.  
-`Multiple-Row` functions or Group functions - recieve more than 1 row of input and return output.
+`Single-Row` functions - receive only one input and return output.  
+`Multiple-Row` functions or Group functions - receive more than 1 row of input and return output.
 
 `Single-Row` functions types:
 
-- Character - recieve character values, return character of numeric values.
-- Numeric - recieve numeric values, return numeric values.
-- Date - recieve date values, return date values.
+- Character - receive character values, return character of numeric values.
+- Numeric - receive numeric values, return numeric values.
+- Date - receive date values, return date values.
 - General - convert one data type to another
-- Conversion - recieve any type of data, but mainly they are for dealing with `NULL`s.
+- Conversion - receive any type of data, but mainly they are for dealing with `NULL`s.
 
 > IMPORTANT: In Oracle indexes are starting from 1!
 ___
@@ -427,7 +427,7 @@ Character functions:
     - `LTRIM('  Sql Course   ')` -> `'Sql Course   '`
   - `RTRIM()` remove spaces or other symbols from the END of the string, example:
     - `RTRIM('  Sql Course   ')` -> `'  Sql Course'`
-  - `REPLACE()` replace the found substring with emptyness or with the specified string, example:
+  - `REPLACE()` replace the found substring with emptiness or with the specified string, example:
     - `REPLACE('Sql Course', 's', '*')` -> `'Sql Cour*e'`
   - `LPAD()` add symbol to the START till the limit value or truncates the long string to the limit value length, example:
     - `LPAD('sql', 10, '-')` -> `'-------sql'`
