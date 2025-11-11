@@ -1,9 +1,11 @@
 # FastApi
 
 ## Installation
+
 You need to download it from the python.org first and install it.
 
 Check that python is installed:
+
 ```powershell
 # Linux
 python3 --version
@@ -13,10 +15,13 @@ python3 -m pip --version
 python --version
 python -m pip --version
 ```
+
 ___
 
 ## Python venv
+
 How to create an venv:
+
 ```powershell
 # Linux 
 python3 -m venv myenv
@@ -28,9 +33,11 @@ python -m venv myenv
 myenv\Scripts\activate.bat
 deactivate
 ```
+
 ___
 
 ## Pip commands
+
 ```powershell
 pip list
 pip install fastapi
@@ -38,14 +45,17 @@ pip install "uvicorn[standard]"
 ```
 
 ## How to start FastApi app
+
 ```powershell
 python -m uvicorn books:app --reload
 ```
 
 ## Swagger - API Docs
-http://127.0.0.1:8000/docs
+
+[Swagger path is located on local host/docs](http://127.0.0.1:8000/docs)
 
 ## GET method
+
 ```python
 @app.get("/books")
 async def read_all_books():
@@ -53,6 +63,7 @@ async def read_all_books():
 ```
 
 ## GET method with Path Parameters
+
 ```python
 @app.get("/books/{book_title}")
 async def read_book(book_title: str):
@@ -62,9 +73,11 @@ async def read_book(book_title: str):
 ```
 
 ## Order matters with Path parameters
+
 ![Example of the importance of the order](images/image-9.png)
 
 ## GET method with Query Parameters
+
 ```python
 @app.get("/books/{book_author}/")
 async def read_books_category_by_query(book_author: str, category: str):
@@ -78,6 +91,7 @@ async def read_books_category_by_query(book_author: str, category: str):
 ```
 
 ## POST method
+
 ```python
 @app.post("/books/create_book")
 async def create_book(new_book=Body()):
