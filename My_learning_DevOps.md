@@ -963,6 +963,48 @@ docker system df -v # break down by image
 
 ### Docker networks
 
+When docker is installed, 3 networks will be created automatically:
+
+- bridge
+- none
+- host
+
+By default a container will be attached to `bridge` network. To attach it to another network use `--network <network_name>`:
+
+```bash
+docker run ubuntu --network=none
+docker run ubuntu --network=host
+docker run ubuntu --network my_network
+```
+
+`Bridge` network is a private internal network and the containers will get an internal IP address, usually in range `172.17`, for example `172.17.0.2`, `172.17.0.5`. To access this from outside world we have to `map` the `container ports` with the `host ports`.
+
+To create another network use `docker network create` command:
+
+```bash
+docker network create \
+  --driver bridge \
+  --subnet 182.18.0.0/16 \
+  my-custom-isolated-network
+```
+
+To check network settings of a container use `docker inspect` command:
+
+```bash
+docker inspect my_container
+
+# Output
+# ...
+# "Networks": {
+#     "bridge": {
+#         "Gateway": "172.17.0.1"
+#         "IPAddress": "172.17.0.6",
+#         "MacAddress": "02:42:ac:11:00:06"
+#     }
+# }
+# ...
+```
+
 Example of connecting a network to a container:
 
 ```bash
@@ -975,3 +1017,18 @@ docker run --name webapp \
   -l mysql-db:mysql-db \
   user/my-simple-webapp-mysql
 ```
+
+Docker has `embedded DNS`, so container can reach out each other by a name:
+
+```bash
+# network bridge:
+# web container on 172.17.0.2
+# mysql container on 172.17.0.3
+
+# Code inside web container
+mysql.connect(172.17.0.3)   # not recommended as the IP can change
+# or
+mysql.connect(mysql)        # correct way, use Docker DNS
+```
+
+Docker uses namespaces for networks. It creates a separate namespace for each container and then it uses virtual Ethernet pairs to connect containers together.
