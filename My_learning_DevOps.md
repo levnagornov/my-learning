@@ -927,7 +927,7 @@ These are the common storage drivers:
 - Overlay
 - Overlay2
 
-The selection of the storage driver depends on the underlying OS being used. 
+The selection of the storage driver depends on the underlying OS being used.
 
 `Debian` and `Ubuntu` are using `AUFS`, but it's not available for `Fedora` or `CentOS`. Use `Device Mapper` there instead. Docker will choose the storage driver automatically.
 
