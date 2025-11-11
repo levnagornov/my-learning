@@ -1,15 +1,18 @@
 # Bash
 
 ## Make script executable
+
 ```bash
 touch script.sh     # create your script
 chmod 755 script.sh # give exec grants
 ```
 
 ## Inside of sh file
+
 `#!/bin/bash` means `#!/path/to/interpreter`
 
 ## Echo command
+
 ```bash
 #!/bin/bash
 
@@ -20,6 +23,7 @@ echo "Scripting is fun!"  # prints a string to a console
 ```
 
 ## Variables
+
 ```bash
 # Assigning int, str or an array to a variable
 # Rule 1. NO SPACES AROUND =
@@ -52,7 +56,9 @@ echo "You are running this script on a ${SERVER_NAME}"
 ```
 
 ## Conditional expressions and If statements
+
 Syntax  
+
 ```bash
 if [ conditional-expression-to-test ]; then
     # Commands if condition is true
@@ -64,6 +70,7 @@ fi
 ```
 
 You can check for:
+
 - if strings are equal
 - if a number is greater than another
 - if a file exists
@@ -115,17 +122,21 @@ fi
 ```
 
 ## For loop
+
 Syntax:
+
 ```bash
 for VAR in LIST; do
     # Commands to execute for each item in the list
 done
 
 ```
+
 `VAR` this variable takes the value of each item in the list.  
 `LIST` the list of items to iterate through.  
 
 Iteration through a list of strings:
+
 ```bash
 for COLOR in red green blue; do
     echo "The color is $COLOR now"
@@ -145,6 +156,7 @@ done
 ```
 
 Iteration through number range:
+
 ```bash
 for NUM in {1..3}; do
     echo "Number is $NUM"
@@ -170,6 +182,7 @@ done
 ```
 
 Iteration through an array:
+
 ```bash
 FRUITS={"apple" "banana" "cherry"}
 for FRUIT in "${FRUITS[@]}"; do
@@ -183,6 +196,7 @@ done
 ```
 
 Iteration through files in a dir:
+
 ```bash
 for FILE in /path/to/directory/*; do
     echo "File is $FILE"
@@ -193,6 +207,7 @@ done
 ```
 
 Using a command's result for iteration:
+
 ```bash
 for USER in $(who | awk '{print $1}'); do
     echo "Logged in user: $USER"
@@ -203,6 +218,7 @@ done
 ```
 
 Nested for loops:
+
 ```bash
 for i in {1..3}; do
     for j in {a..c}; do
@@ -220,6 +236,7 @@ done
 ```
 
 Control of the iteration:
+
 ```bash
 for num in {1..5}; do
     if [ $num -eq 3 ]; then
@@ -244,11 +261,13 @@ done
 ```
 
 One-liners:
+
 ```bash
 for i in {1..5}; do echo "Hello world $i"; done
 ```
 
 Other useful scripts with FOR loop
+
 ```bash
 # This script adds (renames) current date to file names for JPG files
 PICTURES=$(ls *jpg)
@@ -270,6 +289,7 @@ done
 ```
 
 ## Positional parameters
+
 ```bash
 #!/bin/bash
 
@@ -322,6 +342,7 @@ done
 ```
 
 ## User input stdin
+
 ```bash
 #!/bin/bash
 
@@ -347,6 +368,7 @@ tar cf /archives/${USER}.tar.gz /home/${USER}  # creates an archive of the home 
 ```
 
 ## Exit status
+
 ```bash
 #!/bin/bash
 
@@ -390,6 +412,7 @@ exit 0
 ```
 
 ## Logical operators
+
 ```bash
 #!/bin/bash
 
@@ -418,6 +441,7 @@ cp test.txt /tmp
 ```
 
 ## Functions
+
 ```bash
 #!/bin/bash
 
@@ -471,6 +495,7 @@ local MY_LOCAL_VAR=1
 ```
 
 ## Return exit statuses
+
 ```bash
 #!/bin/bash
 
@@ -502,6 +527,7 @@ fi
 ```
 
 ## Wildcards
+
 ```bash
 #!/bin/bash
 
@@ -524,6 +550,7 @@ fi
 ```
 
 ## Case statement
+
 ```bash
 #!/bin/bash
 
@@ -546,6 +573,7 @@ esac
 ```
 
 ## Logging
+
 ```bash
 #!/bin/bash
 
@@ -607,6 +635,7 @@ log_it() {
 ```
 
 ## While loop
+
 ```bash
 #!/bin/bash
 
@@ -681,6 +710,7 @@ done
 ```
 
 ## Debugging
+
 ```bash
 #!/bin/bash
 
@@ -728,6 +758,7 @@ hostname
 ```
 
 ## DOS vs Linux file types
+
 ```bash
 # if you have carriage symbols from DOS files you need to process them with
 # dos2unix
@@ -735,6 +766,7 @@ hostname
 ```
 
 ## SED
+
 ```bash
 # sed
 # sed = stream editor. Streams == pipes
