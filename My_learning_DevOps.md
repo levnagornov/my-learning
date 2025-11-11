@@ -1032,3 +1032,137 @@ mysql.connect(mysql)        # correct way, use Docker DNS
 ```
 
 Docker uses namespaces for networks. It creates a separate namespace for each container and then it uses virtual Ethernet pairs to connect containers together.
+
+### Container orchestration
+
+By default you manage one host and containers on it, by manually running `docker run nodejs`. And if user load increases you will need to manually create more containers and also watch their health and create new if some of them crashes. To solve this `container orchestration` solutions are used. Those are set of tools and scripts.
+
+Typically a `container orchestration` contains several `hosts`. It's required because if one host fails, the others will remain accessible.
+
+```bash
+docker service create --replicas=10 nodejs
+```
+
+Some orchestration solutions help you to increase or decrease the number of instances according to users load. There are other features available:
+
+- load balancing
+- security
+- advanced networking
+- etc...
+
+Available solutions:
+
+- `Docker Swarm` from Docker
+- `Kubernetes` from Google
+- `MESOS` from Apache
+
+`Docker Swarm` is easy to set up and use, but it lacks some advanced features like auto scaling.
+
+`MESOS` is quite difficult to setup, but it has many advanced features.
+
+`Kubernetes` is the most popular and it has also many advanced features. It's supported on all public cloud service providers like Google Cloud, Azure, AWS.
+
+#### Docker Swarm
+
+In `Docker Swarm` you can combine multiple Docker machines into a single cluster. So `Docker Swarm` will take care of distributing application instances into a separate host for high availability and load balancing. To use `Docker Swarm` you must have several hosts with Docker on them. Then you need to declare one host as `Master`/`Swarm Manager` and `Slaves`/`Workers`.
+
+```bash
+# Run on master host / swarm manager host
+docker swarm init
+# The output will provide a command to be run on workers:
+# something like
+docker swarm join --token <token>
+```
+
+After joining the swarm `workers` will be referred as `nodes`. Now you can create services and deploy them on a swarm cluster.
+
+To run several instances of the app/container across worker nodes in the swarm cluster we should use `services`:
+
+```bash
+# Must be run on master host / swarm manager host
+docker service create --replicas=3 my-web-app
+```
+
+The `docker service` command is similar to `docker run` command in terms of options to pass:
+
+```bash
+# Must be run on master host / swarm manager host
+docker service create --replicas=3 \
+    --network frontend \
+    -p 8080:80 \
+    my-web-app
+```
+
+#### Kubernetes
+
+`Kubernetes` cluster has also `nodes`.
+
+Kubernetes has `kubernetes CLI` aka `kube control`. You can run a thousand instances of the same application with a single command:
+
+```bash
+kubectl run --replicas=1000 my-web-app
+```
+
+To automatically scale your app:
+
+```bash
+kubectl run --scale=2000 my-web-app
+```
+
+Kubernetes can be configured that instances and the infrastructure itself can scale up and down based on user load.
+
+Kubernetes can upgrade these 2000 apps in a rolling update fashion one at a time with a single command:
+
+```bash
+# To apply rolling-update:
+kubectl rolling-update my-web-app --image=my-web-app-2
+
+# To revert it:
+kubectl rolling-update my-web-app --rollback
+```
+
+Kubernetes can help you test new features of your application by only upgrading a percentage of these instances through A-B testing methods.
+
+Kubernetes uses Docker hosts to host applications in the form of Docker containers. But it can also use other containers.
+
+Kubernetes architecture:
+
+- `Node` can be a physical or virtual machine where Kubernetes software is installed. `Node` is a `worker` machine as well, so it's where containers are running.
+- `Cluster` is a set of `nodes`, because having one node is not enough, it can crash, so you will lose the availability.
+- `Master node` is a node with the Kubernetes control plane components installed. `Master node` is watching the other `nodes`, and he is responsible for the actual orchestration of the containers.
+
+When you install Kubernetes, you will install the following components:
+
+- API server
+- etcd server
+- kubelet service
+- Container runtime (Docker for example)
+- Controller
+- Scheduler
+
+`API server` is like a frontend for Kubernetes user's management devices, CLI, they all talk to `API server` to interact with the component cluster.
+
+`etcd` is distributed reliable key-value store used by Kubernetes. It stores all data to manage the cluster.
+
+`Scheduler` is responsible for distributing work or containers across multiple nodes.
+
+`Controller` is responsible for noticing and responding when nodes or containers closed down, the controllers decide to bring up new containers.
+
+`Container runtime` is the software than runs containers, for example Docker.
+
+`Kubelet` is the agent that runs on each node in the cluster. It's responsible for making sure that containers are running as expected.
+
+`kubectl` or `kubernetes CLI` or `kube control tool` or `kube cuddle` is used to deploy and manage applications on a Kubernetes cluster.
+
+Commands:
+
+```bash
+# To deploy an application on a cluster:
+kubectl run hello-world-app 
+
+# To view info about the cluster
+kubectl cluster-info
+
+# To list all the nodes that are part of the cluster
+kubectl get nodes
+```
