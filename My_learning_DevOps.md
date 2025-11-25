@@ -105,7 +105,7 @@ The main dirs in any Linux:
 
 ### Advanced commands
 
-Creating, moving and removing, coping dirs and files
+#### Creating, moving and removing, coping dirs and files
 
 ```bash
 # Create a path
@@ -144,7 +144,7 @@ cat file1.txt file2.txt > combined.txt
 
 ```
 
-Reading file with `less`
+#### Reading file with `less`
 
 ```bash
 # Usage
@@ -152,6 +152,7 @@ less example.txt
 ```
 
 Important keys for `less`:
+
 `Space`      Next page.
 
 `b`          Previous page.
@@ -162,7 +163,7 @@ Important keys for `less`:
 
 `q`          Exit less.
 
-Reading file with `nano`
+#### Reading file with `nano`
 
 ```bash
 # Usage
