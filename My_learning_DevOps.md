@@ -180,6 +180,12 @@ Important keys for `nano`:
 
 `Ctrl+U`  Paste line.
 
+#### How to generate a big file with `seq`
+
+```bash
+seq 1 1000 > bigfile.txt
+```
+
 ## Docker
 
 ### Commands
