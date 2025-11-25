@@ -103,7 +103,7 @@ The main dirs in any Linux:
 
 `/mnt`  Mounts of external devices, like USB and other storage.
 
-### Advaced commands
+### Advanced commands
 
 Creating, moving and removing, coping dirs and files
 
@@ -453,7 +453,7 @@ You can find this info by `history` command:
 docker history levnagornov/my-flask-app
 ```
 
-Docker can restart the failed layer and if you change or add another layer the other layers will be ontouchend.  
+Docker can restart the failed layer and if you change or add another layer the other layers will be untouched.  
 
 Docker caches all the image layers.
 
