@@ -130,6 +130,55 @@ cp file1.txt file2.txt file3.txt backup/
 cp -r my_folder backup_folder
 ```
 
+Reading files with `cat`
+
+```bash
+# Usage
+echo "Hello, Linux!" > example.txt
+cat example.txt
+# Prints out
+# "Hello, Linux!"
+
+# Cat can be also used for combining files
+cat file1.txt file2.txt > combined.txt
+
+```
+
+Reading file with `less`
+
+```bash
+# Usage
+less example.txt
+```
+
+Important keys for `less`:
+`Space`      Next page.
+
+`b`          Previous page.
+
+`/sometext`  Search from top to bottom.
+
+`?sometext`  Search from bottom to top.
+
+`q`          Exit less.
+
+Reading file with `nano`
+
+```bash
+# Usage
+nano example.txt
+```
+
+Important keys for `nano`:
+
+`Ctrl+O`  Save the file.
+
+`Ctrl+X`  Exit nano.
+
+`Ctrl+K`  Cut line.
+
+`Ctrl+U`  Paste line.
+
 ## Docker
 
 ### Commands
