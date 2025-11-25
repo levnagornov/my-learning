@@ -85,6 +85,24 @@ Fedora OS uses `DNF`:
 sudo dnf install nano
 ```
 
+### Main dirs
+
+The main dirs in any Linux:
+
+`/`     Root directory, contains other directories.
+
+`/home` Home dirs of users, e.g. `/home/johndoe`.
+
+`/etc`  System configuration files.
+
+`/var`  Dynamic files, like logs or temporary files.
+
+`/tmp`  Temp files, removed regularly by OS.
+
+`/dev`  Connected devices, like USB, hard drive and etc.
+
+`/mnt`  Mounts of external devices, like USB and other storage.
+
 ## Docker
 
 ### Commands
