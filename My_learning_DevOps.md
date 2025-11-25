@@ -103,6 +103,33 @@ The main dirs in any Linux:
 
 `/mnt`  Mounts of external devices, like USB and other storage.
 
+### Advaced commands
+
+Creating, moving and removing, coping dirs and files
+
+```bash
+# Create a path
+mkdir -p parent_folder/child_folder/sub_child
+
+# Create a path with several dirs
+mkdir -p project/{src,docs,tests}
+
+# Creating nested structure
+mkdir -p website/{assets/{css,js},content}
+
+# Create several files
+touch file1.txt file2.txt file3.txt
+
+# Remove several files
+rm file1.txt file2.txt
+
+# Copy several files in a dir
+cp file1.txt file2.txt file3.txt backup/
+
+# Copy the whole structure
+cp -r my_folder backup_folder
+```
+
 ## Docker
 
 ### Commands
