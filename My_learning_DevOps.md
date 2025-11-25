@@ -54,7 +54,8 @@ rpm -q telnet       # to get detailed info about the installed package
 
 #### YUM
 
-`YUM` is a high level package manager, it understands the package dependencies and install them automatically. Under the hood `YUM` uses `RPM`
+`YUM` is a high level package manager, it understands the package dependencies and install them automatically. Under the hood `YUM` uses `RPM`.
+
 Commands:
 
 ```bash
@@ -67,6 +68,21 @@ yum install ansible  # will install ansible and python as a dependency
 yum repolist # shows available repositories
 ls /etc/yum.repos.d # shows the repositories as files
 cat /etc/yum.repos.d/CentOS-Base.repo # shows web link of the repository, the link show the RPM files that YUM will download
+```
+
+#### Other package managers
+
+Ubuntu, Linux Mint, Debian are using `APT`:
+
+```bash
+sudo apt update
+sudo apt install vim
+```
+
+Fedora OS uses `DNF`:
+
+```bash
+sudo dnf install nano
 ```
 
 ## Docker
